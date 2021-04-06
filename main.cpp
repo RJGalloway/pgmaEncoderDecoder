@@ -18,7 +18,7 @@ const int H = 512;
 const int W = 512;
 
 //pull the values of the pgma from the file
-void readPGM(int imageArr[H][W], int h, int w)
+void encodePGM(int imageArr[H][W], int &h, int &w, int grayLvl)
 {
     char c;
     int scale;
@@ -31,7 +31,7 @@ void readPGM(int imageArr[H][W], int h, int w)
     infile >> c;
     assert(c == '2');
 
-    //skip pgm comments
+    //skip pgma comments
     while((infile >> std::ws).peek() == '#')
     {
         infile.ignore(4096, '\n');
@@ -40,7 +40,6 @@ void readPGM(int imageArr[H][W], int h, int w)
     infile >> h;
 
     infile >> scale;
-    assert(scale == 255);
 
     //Copy ASCII values form the .pgma to a 2d array
     for(int i = 0; i < h; i++)
@@ -50,12 +49,48 @@ void readPGM(int imageArr[H][W], int h, int w)
             infile >> imageArr[i][j];
         }
     }
+    if(grayLvl == 2)
+    {
+        for(int i = 0; i < h, i++)
+            for(int j = 0; j < w; j++)
+            {
+                if(imageArr[i][j] < 128)
+                {
+                    imageArr[i][j] = 0;
+                }
+                else
+                    imageArr[i][j] = 1;
+            }
+    }
+/*    else
+    {
+        for (int i = 0; i < h, i++)
+            for (int j = 0; j < w; j++) {
+                if (imageArr[i][j] < 128) {
+                    imageArr[i][j] = 0;
+                } else
+                    imageArr[i][j] = 1;
+            }
+    }
+    */
     infile.close();
 }
 
-void encode(int imageArr[H][W], int h, int w, int graylvl)
+void writeEncodedPGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
 {
-    //Do something
+    std::ofstream outFile;
+    outFile.open("EncodedBaboon.pgma");
+    if(outFile.fail())
+    {
+        std::cout << "Could not write to file.";
+        exit(1);
+    }
+    //Write the P2 Header and comments
+    outFile << "P2" << std::endl;
+    outFile << "# modifiedBaboon.pgma using quadtree." << std::endl;
+    outFile << w << ' ';
+    outFile << h << std::endl;
+    outFile << grayLvl << std::endl;
 }
 
 void writePGM(int imageArr[H][W], int h, int w, int grayLvl)
@@ -77,8 +112,6 @@ void writePGM(int imageArr[H][W], int h, int w, int grayLvl)
     for(int i = 0; i < h; i++)
         for(int j = 0; j < w; j++)
         {
-            assert(imageArr[i][j] <= 255);
-            assert(imageArr[i][j] >= 0);
             outFile << imageArr[i][j] << ' ';
         }
     outFile.close();
@@ -91,7 +124,7 @@ int main(int argc, char* argv[])
     int grayLvl;
     if(argc != 2)
     {
-        std::cerr << "Usage: Please enter a valid threshold.";
+        std::cerr << "Usage: Please enter a valid gray level.";
         exit(-1);
     }
     grayLvl = std::stoi(argv[1]);
@@ -103,7 +136,7 @@ int main(int argc, char* argv[])
     h = H;
     w = W;
 
-    readPGM(imageArr, h, w);
-    writePGM(imageArr, h, w, grayLvl);
+    encodePGM(imageArr, h, w, grayLvl);
+    writeEncodedPGMA(imageArr, h, w, grayLvl);
     return 0;
 }
