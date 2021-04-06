@@ -90,7 +90,7 @@ void writeEncodedPGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
     outFile << "# Encoded Image" << std::endl;
     outFile << w << ' ';
     outFile << h << std::endl;
-    outFile << grayLvl << std::endl;
+    outFile << grayLvl - 1 << std::endl;
 }
 
 void writePGM(int imageArr[H][W], int h, int w, int grayLvl)
