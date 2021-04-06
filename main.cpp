@@ -95,7 +95,7 @@ void encodePGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
                     imageArr[i][j] = 12;
                 else if(imageArr[i][j] >= 222 && imageArr[i][j] <= 238)
                     imageArr[i][j] = 13;
-                else if(imageArr[i][j] >= 239 && imageArr[i][j] <= 255)
+                else
                     imageArr[i][j] = 14;
             }
     }
@@ -105,15 +105,18 @@ void encodePGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
 void writeEncodedPGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
 {
     std::ofstream outFile;
+
     if(grayLvl == 2)
         outFile.open("EncodedBaboon2-Levels.pgma");
     else
         outFile.open("EncodedBaboon15-Levels.pgma");
+
     if(outFile.fail())
     {
         std::cout << "Could not write to file.";
         exit(1);
     }
+
     //Write the P2 Header and comments
     outFile << "P2" << std::endl;
     outFile << "# Encoded Image" << std::endl;
@@ -147,12 +150,16 @@ void writeEncodedPGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
     outFile.close();
 }
 
-void decodePGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
-{
+void decodePGMA(int imageArr[H][W], int &h, int &w, int grayLvl) {
     char c;
     int scale;
     std::ifstream inFile;
-    inFile.open("EncodedBaboon.pgma");
+
+    //Set output file for appropriate gray level selected
+    if (grayLvl == 2)
+        inFile.open("EncodedBaboon2-Levels.pgma");
+    else
+        inFile.open("EncodedBaboon15-Levels.pgma");
     //read PGM header
     inFile >> c;
     assert(c == 'P');
@@ -160,31 +167,64 @@ void decodePGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
     assert(c == '2');
 
     //skip pgma comments
-    while((inFile >> std::ws).peek() == '#')
-    {
+    while ((inFile >> std::ws).peek() == '#') {
         inFile.ignore(4096, '\n');
     }
+
     inFile >> w;
     inFile >> h;
+
     inFile >> scale;
 
-    for(int i = 0; i < h; i++)
-    {
-        for (int j = 0; j < w; j++)
-        {
+    //Write the values in the encoded pgma to the imgArr
+    for (int i = 0; i < h; i++) {
+        for (int j = 0; j < w; j++) {
             inFile >> imageArr[i][j];
         }
     }
-    if(grayLvl == 2)
-    {
-        for(int i = 0; i < h; i++)
-        {
-            for (int j = 0; j < w; j++)
-            {
-                if(imageArr[i][j] == 0)
+
+    if (grayLvl == 2) {
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                if (imageArr[i][j] == 0)
                     imageArr[i][j] = 63;
                 else
                     imageArr[i][j] = 191;
+            }
+        }
+    } else {
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                if (imageArr[i][j] == 0)
+                    imageArr[i][j] = 8;
+                else if (imageArr[i][j] == 1)
+                    imageArr[i][j] = 26;
+                else if (imageArr[i][j] == 2)
+                    imageArr[i][j] = 43;
+                else if (imageArr[i][j] == 3)
+                    imageArr[i][j] = 60;
+                else if (imageArr[i][j] == 4)
+                    imageArr[i][j] = 77;
+                else if (imageArr[i][j] == 5)
+                    imageArr[i][j] = 94;
+                else if (imageArr[i][j] == 6)
+                    imageArr[i][j] = 111;
+                else if (imageArr[i][j] == 7)
+                    imageArr[i][j] = 128;
+                else if (imageArr[i][j] == 8)
+                    imageArr[i][j] = 145;
+                else if (imageArr[i][j] == 9)
+                    imageArr[i][j] = 162;
+                else if (imageArr[i][j] == 10)
+                    imageArr[i][j] = 179;
+                else if (imageArr[i][j] == 11)
+                    imageArr[i][j] = 196;
+                else if (imageArr[i][j] == 12)
+                    imageArr[i][j] = 213;
+                else if (imageArr[i][j] == 13)
+                    imageArr[i][j] = 230;
+                else
+                    imageArr[i][j] = 247;
             }
         }
     }
@@ -193,28 +233,39 @@ void decodePGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
 void writeDecodedPGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
 {
     std::ofstream outFile;
-    outFile.open("DecodedBaboon.pgma");
+
+    if(grayLvl == 2)
+        outFile.open("DecodedBaboon2-Levels.pgma");
+    else
+        outFile.open("DecodedBaboon15-Levels.pgma");
+
     if(outFile.fail())
     {
         std::cout << "Could not write to file.";
         exit(1);
     }
+
     //Write the P2 Header and comments
     outFile << "P2" << std::endl;
     outFile << "# Decoded Baboon Image" << std::endl;
     outFile << w << ' ';
     outFile << h << std::endl;
+
     if(grayLvl == 2)
         outFile << 191 << std::endl;
-    if(grayLvl == 2)
-    {
-        for (int i = 0; i < h; i++)
-            for (int j = 0; j < w; j++)
-            {
-                outFile << imageArr[i][j] << ' ';
-            }
-    }
+    else
+        outFile << 247 << std::endl;
+
+
+    for (int i = 0; i < h; i++)
+        for (int j = 0; j < w; j++)
+        {
+            outFile << imageArr[i][j] << ' ';
+        }
 }
+
+
+
 int main()
 {
     int imageArr[H][W];
