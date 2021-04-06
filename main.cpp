@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <string>
+#include <math.h>
 
 const int H = 512;
 const int W = 512;
@@ -67,33 +68,33 @@ void encodePGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
         for (int i = 0; i < h; i++)
             for (int j = 0; j < w; j++)
             {
-                if (imageArr[i][j] >= 0 && imageArr[i][j] <= 17)
+                if (imageArr[i][j] >= 0 && imageArr[i][j] <= 16)
                     imageArr[i][j] = 0;
-                else if(imageArr[i][j] >= 18 && imageArr[i][j] <= 34)
+                else if(imageArr[i][j] >= 17 && imageArr[i][j] <= 33)
                     imageArr[i][j] = 1;
-                else if(imageArr[i][j] >= 35 && imageArr[i][j] <= 51)
+                else if(imageArr[i][j] >= 34 && imageArr[i][j] <= 50)
                     imageArr[i][j] = 2;
-                else if(imageArr[i][j] >= 52 && imageArr[i][j] <= 68)
+                else if(imageArr[i][j] >= 51 && imageArr[i][j] <= 67)
                     imageArr[i][j] = 3;
-                else if(imageArr[i][j] >= 69 && imageArr[i][j] <= 85)
+                else if(imageArr[i][j] >= 68 && imageArr[i][j] <= 84)
                     imageArr[i][j] = 4;
-                else if(imageArr[i][j] >= 86 && imageArr[i][j] <= 102)
+                else if(imageArr[i][j] >= 85 && imageArr[i][j] <= 101)
                     imageArr[i][j] = 5;
-                else if(imageArr[i][j] >= 103 && imageArr[i][j] <= 119)
+                else if(imageArr[i][j] >= 102 && imageArr[i][j] <= 118)
                     imageArr[i][j] = 6;
-                else if(imageArr[i][j] >= 120 && imageArr[i][j] <= 136)
+                else if(imageArr[i][j] >= 119 && imageArr[i][j] <= 135)
                     imageArr[i][j] = 7;
-                else if(imageArr[i][j] >= 137 && imageArr[i][j] <= 153)
+                else if(imageArr[i][j] >= 136 && imageArr[i][j] <= 152)
                     imageArr[i][j] = 8;
-                else if(imageArr[i][j] >= 154 && imageArr[i][j] <= 170)
+                else if(imageArr[i][j] >= 153 && imageArr[i][j] <= 169)
                     imageArr[i][j] = 9;
-                else if(imageArr[i][j] >= 171 && imageArr[i][j] <= 187)
+                else if(imageArr[i][j] >= 170 && imageArr[i][j] <= 186)
                     imageArr[i][j] = 10;
-                else if(imageArr[i][j] >= 188 && imageArr[i][j] <= 204)
+                else if(imageArr[i][j] >= 187 && imageArr[i][j] <= 203)
                     imageArr[i][j] = 11;
-                else if(imageArr[i][j] >= 205 && imageArr[i][j] <= 221)
+                else if(imageArr[i][j] >= 204 && imageArr[i][j] <= 220)
                     imageArr[i][j] = 12;
-                else if(imageArr[i][j] >= 222 && imageArr[i][j] <= 238)
+                else if(imageArr[i][j] >= 221 && imageArr[i][j] <= 237)
                     imageArr[i][j] = 13;
                 else
                     imageArr[i][j] = 14;
@@ -263,12 +264,52 @@ void writeDecodedPGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
             outFile << imageArr[i][j] << ' ';
         }
 }
+void distortion(int imageArr[H][W],  int &h, int &w)
+{
+    char c;
+    int scale;
+    int distortion = 0;
+    int tmpArray[H][W];
+    std::ifstream infile;
+    infile.open("baboon.pgma");
 
+    //read PGM header
+    infile >> c;
+    assert(c == 'P');
+    infile >> c;
+    assert(c == '2');
+
+    //skip pgma comments
+    while((infile >> std::ws).peek() == '#')
+    {
+        infile.ignore(4096, '\n');
+    }
+    infile >> w;
+    infile >> h;
+
+    infile >> scale;
+
+    //Copy ASCII values form the .pgma to a 2d array
+    for(int i = 0; i < h; i++)
+    {
+        for (int j = 0; j < w; j++)
+        {
+            infile >> tmpArray[i][j];
+        }
+    }
+    for(int i = 0; i < h; i++)
+        for (int j = 0; j < w; j++)
+        {
+            distortion += pow((tmpArray[i][j] - imageArr[i][j]), 2);
+        }
+    std::cout << "Distortion = " << distortion << std::endl;
+}
 
 
 int main()
 {
     int imageArr[H][W];
+
     int h, w;
     int grayLvl, choice;
     std::cout << "Please select a gray level value. \n";
@@ -298,6 +339,7 @@ int main()
     writeEncodedPGMA(imageArr, h, w, grayLvl);
     decodePGMA(imageArr, h, w, grayLvl);
     writeDecodedPGMA(imageArr, h, w, grayLvl);
+    distortion(imageArr, h, w);
 
     return 0;
 }
