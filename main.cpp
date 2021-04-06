@@ -91,12 +91,68 @@ void writeEncodedPGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
     outFile << w << ' ';
     outFile << h << std::endl;
     outFile << grayLvl - 1 << std::endl;
+
+    if(grayLvl == 2)
+    {
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+            {
+                assert(imageArr[i][j] >= 0);
+                assert(imageArr[i][j] <= 1);
+                outFile << imageArr[i][j] << ' ';
+            }
+    }
+
+    outFile.close();
 }
 
-void writePGM(int imageArr[H][W], int h, int w, int grayLvl)
+void decodePGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
+{
+    char c;
+    int scale;
+    std::ifstream inFile;
+    inFile.open("EncodedBaboon.pgma");
+    //read PGM header
+    inFile >> c;
+    assert(c == 'P');
+    inFile >> c;
+    assert(c == '2');
+
+    //skip pgma comments
+    while((inFile >> std::ws).peek() == '#')
+    {
+        inFile.ignore(4096, '\n');
+    }
+    inFile >> w;
+    inFile >> h;
+    inFile >> scale;
+
+    for(int i = 0; i < h; i++)
+    {
+        for (int j = 0; j < w; j++)
+        {
+            inFile >> imageArr[i][j];
+        }
+    }
+    if(grayLvl == 2)
+    {
+        for(int i = 0; i < h; i++)
+        {
+            for (int j = 0; j < w; j++)
+            {
+                if(imageArr[i][j] == 0)
+                    imageArr[i][j] = 63;
+                else
+                    imageArr[i][j] = 191;
+            }
+        }
+    }
+}
+
+void writeDecodedPGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
 {
     std::ofstream outFile;
-    outFile.open("ModifiedBaboon.pgma");
+    outFile.open("DecodedBaboon.pgma");
     if(outFile.fail())
     {
         std::cout << "Could not write to file.";
@@ -104,19 +160,20 @@ void writePGM(int imageArr[H][W], int h, int w, int grayLvl)
     }
     //Write the P2 Header and comments
     outFile << "P2" << std::endl;
-    outFile << "# modifiedBaboon.pgma using quadtree." << std::endl;
+    outFile << "# Decoded Baboon Image" << std::endl;
     outFile << w << ' ';
     outFile << h << std::endl;
-    outFile << grayLvl << std::endl;
-
-    for(int i = 0; i < h; i++)
-        for(int j = 0; j < w; j++)
-        {
-            outFile << imageArr[i][j] << ' ';
-        }
-    outFile.close();
+    if(grayLvl == 2)
+        outFile << 191 << std::endl;
+    if(grayLvl == 2)
+    {
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+            {
+                outFile << imageArr[i][j] << ' ';
+            }
+    }
 }
-
 int main()
 {
     int imageArr[H][W];
@@ -147,5 +204,8 @@ int main()
 
     encodePGMA(imageArr, h, w, grayLvl);
     writeEncodedPGMA(imageArr, h, w, grayLvl);
+    decodePGMA(imageArr, h, w, grayLvl);
+    writeDecodedPGMA(imageArr, h, w, grayLvl);
+
     return 0;
 }
