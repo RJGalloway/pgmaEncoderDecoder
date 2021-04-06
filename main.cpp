@@ -62,24 +62,53 @@ void encodePGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
                     imageArr[i][j] = 1;
             }
     }
-/*    else
+    else
     {
-        for (int i = 0; i < h, i++)
-            for (int j = 0; j < w; j++) {
-                if (imageArr[i][j] < 128) {
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+            {
+                if (imageArr[i][j] >= 0 && imageArr[i][j] <= 17)
                     imageArr[i][j] = 0;
-                } else
+                else if(imageArr[i][j] >= 18 && imageArr[i][j] <= 34)
                     imageArr[i][j] = 1;
+                else if(imageArr[i][j] >= 35 && imageArr[i][j] <= 51)
+                    imageArr[i][j] = 2;
+                else if(imageArr[i][j] >= 52 && imageArr[i][j] <= 68)
+                    imageArr[i][j] = 3;
+                else if(imageArr[i][j] >= 69 && imageArr[i][j] <= 85)
+                    imageArr[i][j] = 4;
+                else if(imageArr[i][j] >= 86 && imageArr[i][j] <= 102)
+                    imageArr[i][j] = 5;
+                else if(imageArr[i][j] >= 103 && imageArr[i][j] <= 119)
+                    imageArr[i][j] = 6;
+                else if(imageArr[i][j] >= 120 && imageArr[i][j] <= 136)
+                    imageArr[i][j] = 7;
+                else if(imageArr[i][j] >= 137 && imageArr[i][j] <= 153)
+                    imageArr[i][j] = 8;
+                else if(imageArr[i][j] >= 154 && imageArr[i][j] <= 170)
+                    imageArr[i][j] = 9;
+                else if(imageArr[i][j] >= 171 && imageArr[i][j] <= 187)
+                    imageArr[i][j] = 10;
+                else if(imageArr[i][j] >= 188 && imageArr[i][j] <= 204)
+                    imageArr[i][j] = 11;
+                else if(imageArr[i][j] >= 205 && imageArr[i][j] <= 221)
+                    imageArr[i][j] = 12;
+                else if(imageArr[i][j] >= 222 && imageArr[i][j] <= 238)
+                    imageArr[i][j] = 13;
+                else if(imageArr[i][j] >= 239 && imageArr[i][j] <= 255)
+                    imageArr[i][j] = 14;
             }
     }
-    */
     infile.close();
 }
 
 void writeEncodedPGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
 {
     std::ofstream outFile;
-    outFile.open("EncodedBaboon.pgma");
+    if(grayLvl == 2)
+        outFile.open("EncodedBaboon2-Levels.pgma");
+    else
+        outFile.open("EncodedBaboon15-Levels.pgma");
     if(outFile.fail())
     {
         std::cout << "Could not write to file.";
@@ -92,6 +121,7 @@ void writeEncodedPGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
     outFile << h << std::endl;
     outFile << grayLvl - 1 << std::endl;
 
+    //Gray level == 2
     if(grayLvl == 2)
     {
         for (int i = 0; i < h; i++)
@@ -99,6 +129,17 @@ void writeEncodedPGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
             {
                 assert(imageArr[i][j] >= 0);
                 assert(imageArr[i][j] <= 1);
+                outFile << imageArr[i][j] << ' ';
+            }
+    }
+    //Gray level == 15
+    else
+    {
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+            {
+                assert(imageArr[i][j] >= 0);
+                assert(imageArr[i][j] <= 14);
                 outFile << imageArr[i][j] << ' ';
             }
     }
