@@ -18,7 +18,7 @@ const int H = 512;
 const int W = 512;
 
 //pull the values of the pgma from the file
-void encodePGM(int imageArr[H][W], int &h, int &w, int grayLvl)
+void encodePGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
 {
     char c;
     int scale;
@@ -51,7 +51,7 @@ void encodePGM(int imageArr[H][W], int &h, int &w, int grayLvl)
     }
     if(grayLvl == 2)
     {
-        for(int i = 0; i < h, i++)
+        for(int i = 0; i < h; i++)
             for(int j = 0; j < w; j++)
             {
                 if(imageArr[i][j] < 128)
@@ -87,7 +87,7 @@ void writeEncodedPGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
     }
     //Write the P2 Header and comments
     outFile << "P2" << std::endl;
-    outFile << "# modifiedBaboon.pgma using quadtree." << std::endl;
+    outFile << "# Encoded Image" << std::endl;
     outFile << w << ' ';
     outFile << h << std::endl;
     outFile << grayLvl << std::endl;
@@ -117,26 +117,35 @@ void writePGM(int imageArr[H][W], int h, int w, int grayLvl)
     outFile.close();
 }
 
-int main(int argc, char* argv[])
+int main()
 {
     int imageArr[H][W];
     int h, w;
-    int grayLvl;
-    if(argc != 2)
+    int grayLvl, choice;
+    std::cout << "Please select a gray level value. \n";
+    std::cout << "---------------------------------. \n";
+    std::cout << "1. Gray Level 2 \n";
+    std::cout << "2. Gray Level 15 \n";
+    std::cout << "Enter 1 or 2: ";
+    std::cin >> choice;
+    if(choice > 0 && choice <=2)
     {
-        std::cerr << "Usage: Please enter a valid gray level.";
-        exit(-1);
+        if(choice == 1)
+        {
+            grayLvl = 2;
+        }
+        else
+            grayLvl = 15;
     }
-    grayLvl = std::stoi(argv[1]);
-    if(grayLvl < 2 || grayLvl > 255)
+    else
     {
-        std::cerr << "Please enter a valid gray level 2-255.";
-        exit(-1);
+        std::cerr << "Invalid Choice \n";
+        std::exit(-1);
     }
-    h = H;
     w = W;
+    h = H;
 
-    encodePGM(imageArr, h, w, grayLvl);
+    encodePGMA(imageArr, h, w, grayLvl);
     writeEncodedPGMA(imageArr, h, w, grayLvl);
     return 0;
 }
