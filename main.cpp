@@ -268,8 +268,9 @@ void distortion(int imageArr[H][W],  int &h, int &w)
 {
     char c;
     int scale;
-    int distortion = 0;
-    int tmpArray[H][W];
+    double distortion = 0;
+    int n = h * w;
+    auto tmpArray = new int[H][W];
     std::ifstream infile;
     infile.open("baboon.pgma");
 
@@ -302,7 +303,7 @@ void distortion(int imageArr[H][W],  int &h, int &w)
         {
             distortion += pow((tmpArray[i][j] - imageArr[i][j]), 2);
         }
-    std::cout << "Distortion = " << distortion << std::endl;
+    std::cout << "Distortion = " << distortion/n << std::endl;
 }
 
 
