@@ -13,7 +13,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <string>
-#include <math.h>
+#include <cmath>
 
 const int H = 512;
 const int W = 512;
