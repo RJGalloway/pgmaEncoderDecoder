@@ -199,33 +199,33 @@ void decodePGMA(int imageArr[H][W], int &h, int &w, int grayLvl) {
                 if (imageArr[i][j] == 0)
                     imageArr[i][j] = 8;
                 else if (imageArr[i][j] == 1)
-                    imageArr[i][j] = 26;
+                    imageArr[i][j] = 25;
                 else if (imageArr[i][j] == 2)
-                    imageArr[i][j] = 43;
+                    imageArr[i][j] = 42;
                 else if (imageArr[i][j] == 3)
-                    imageArr[i][j] = 60;
+                    imageArr[i][j] = 59;
                 else if (imageArr[i][j] == 4)
-                    imageArr[i][j] = 77;
+                    imageArr[i][j] = 76;
                 else if (imageArr[i][j] == 5)
-                    imageArr[i][j] = 94;
+                    imageArr[i][j] = 93;
                 else if (imageArr[i][j] == 6)
-                    imageArr[i][j] = 111;
+                    imageArr[i][j] = 110;
                 else if (imageArr[i][j] == 7)
-                    imageArr[i][j] = 128;
+                    imageArr[i][j] = 127;
                 else if (imageArr[i][j] == 8)
-                    imageArr[i][j] = 145;
+                    imageArr[i][j] = 144;
                 else if (imageArr[i][j] == 9)
-                    imageArr[i][j] = 162;
+                    imageArr[i][j] = 161;
                 else if (imageArr[i][j] == 10)
-                    imageArr[i][j] = 179;
+                    imageArr[i][j] = 178;
                 else if (imageArr[i][j] == 11)
-                    imageArr[i][j] = 196;
+                    imageArr[i][j] = 195;
                 else if (imageArr[i][j] == 12)
-                    imageArr[i][j] = 213;
+                    imageArr[i][j] = 212;
                 else if (imageArr[i][j] == 13)
-                    imageArr[i][j] = 230;
+                    imageArr[i][j] = 229;
                 else
-                    imageArr[i][j] = 247;
+                    imageArr[i][j] = 246;
             }
         }
     }
@@ -304,9 +304,82 @@ void distortion(int imageArr[H][W],  int &h, int &w)
             distortion += pow((tmpArray[i][j] - imageArr[i][j]), 2);
         }
     std::cout << "Distortion = " << distortion/n << std::endl;
+    delete [] tmpArray;
 }
 
+void generateErrorImage(int imageArr[H][W], int &h, int &w)
+{
+    char c;
+    int scale;
+    auto tmpArray = new int[H][W];
+    std::ifstream infile;
+    infile.open("baboon.pgma");
 
+    //read PGM header
+    infile >> c;
+    assert(c == 'P');
+    infile >> c;
+    assert(c == '2');
+
+    //skip pgma comments
+    while((infile >> std::ws).peek() == '#')
+    {
+        infile.ignore(4096, '\n');
+    }
+    infile >> w;
+    infile >> h;
+
+    infile >> scale;
+
+    //Copy ASCII values form the .pgma to a 2d array
+    for(int i = 0; i < h; i++)
+    {
+        for (int j = 0; j < w; j++)
+        {
+            infile >> tmpArray[i][j];
+        }
+    }
+    for(int i = 0; i < h; i++)
+        for (int j = 0; j < w; j++)
+        {
+            imageArr[i][j] = abs((tmpArray[i][j] - imageArr[i][j]));
+        }
+    delete [] tmpArray;
+}
+
+void writeErrorImg(int imageArr[H][W], int &h, int &w, int grayLvl)
+{
+    std::ofstream outFile;
+
+    if(grayLvl == 2)
+        outFile.open("ErrorImage2-Levels.pgma");
+    else
+        outFile.open("ErrorImage15-Levels.pgma");
+
+    if(outFile.fail())
+    {
+        std::cout << "Could not write to file.";
+        exit(1);
+    }
+
+    //Write the P2 Header and comments
+    outFile << "P2" << std::endl;
+    outFile << "# Decoded Baboon Image" << std::endl;
+    outFile << w << ' ';
+    outFile << h << std::endl;
+    if(grayLvl == 2)
+        outFile << 255 << std::endl;
+    else
+        outFile << 9 << std::endl;
+
+
+    for (int i = 0; i < h; i++)
+        for (int j = 0; j < w; j++)
+        {
+            outFile << imageArr[i][j] << ' ';
+        }
+
+}
 int main()
 {
     int imageArr[H][W];
@@ -341,6 +414,8 @@ int main()
     decodePGMA(imageArr, h, w, grayLvl);
     writeDecodedPGMA(imageArr, h, w, grayLvl);
     distortion(imageArr, h, w);
+    generateErrorImage(imageArr, h, w);
+    writeErrorImg(imageArr, h, w, grayLvl);
 
     return 0;
 }
