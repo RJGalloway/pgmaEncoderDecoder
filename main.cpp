@@ -368,7 +368,7 @@ void writeErrorImg(int imageArr[H][W], int &h, int &w, int grayLvl)
     outFile << w << ' ';
     outFile << h << std::endl;
     if(grayLvl == 2)
-        outFile << 255 << std::endl;
+        outFile << 64 << std::endl;
     else
         outFile << 9 << std::endl;
 
