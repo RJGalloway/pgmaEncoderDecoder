@@ -263,6 +263,7 @@ void writeDecodedPGMA(int imageArr[H][W], int &h, int &w, int grayLvl)
         {
             outFile << imageArr[i][j] << ' ';
         }
+    outFile.close();
 }
 void distortion(int imageArr[H][W],  int &h, int &w)
 {
@@ -305,6 +306,7 @@ void distortion(int imageArr[H][W],  int &h, int &w)
         }
     std::cout << "Distortion = " << distortion/n << std::endl;
     delete [] tmpArray;
+    infile.close();
 }
 
 void generateErrorImage(int imageArr[H][W], int &h, int &w)
@@ -345,6 +347,7 @@ void generateErrorImage(int imageArr[H][W], int &h, int &w)
             imageArr[i][j] = abs((tmpArray[i][j] - imageArr[i][j]));
         }
     delete [] tmpArray;
+    infile.close();
 }
 
 void writeErrorImg(int imageArr[H][W], int &h, int &w, int grayLvl)
@@ -378,6 +381,7 @@ void writeErrorImg(int imageArr[H][W], int &h, int &w, int grayLvl)
         {
             outFile << imageArr[i][j] << ' ';
         }
+    outFile.close();
 
 }
 int main()
